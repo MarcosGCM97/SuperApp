@@ -2,7 +2,9 @@ const express = require('express')
 const app = express()
 const axios = require('axios')
 const cors  = require('cors')
+const path = require('path')
 
+app.use('/_next', express.static(path.join(__dirname, '.next')))
 app.use(express.json())
 app.use(cors())
 
@@ -54,7 +56,7 @@ const generateID = () => {
 }
 
 app.get('/', (request, response) => {
-    response.send('<h1>Hello</h1>')
+    response.sendFile(path.join(__dirname, '.next', 'server', 'app', 'index.html'))
 })
 
 //solicitudes a WeatherAPI
