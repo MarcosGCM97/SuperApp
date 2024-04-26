@@ -4,14 +4,14 @@ const axios = require('axios')
 
 
 RouterWeathers.get('/', async (request, response) => {
-    response.json(weather)
+    await response.json(weather)
 })
 RouterWeathers.post('/', async (request, response) => {
     const data = await request.body
     
     const location = data.newWeather
     try{
-        const APIweatherKey = '0f505a3141a1da81ea3de947f8382b60'
+        const APIweatherKey = process.env.API_WEATHER_KEY
         const url = `http://api.weatherstack.com/current?access_key=${APIweatherKey}&query=${location}`;
     
         const res = await axios.get(url)

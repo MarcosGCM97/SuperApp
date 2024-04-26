@@ -1,7 +1,5 @@
 const mongoose = require('mongoose')
 
-//const password = 'superapp'
-//const url = `mongodb+srv://marcoscongregado:${password}@cluster0.fuoswgv.mongodb.net/`
 mongoose.set('strictQuery', false)
 
 const url = process.env.MONGODB_URI
@@ -20,7 +18,7 @@ const toDoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    completed: Boolean
+    completed: Boolean || false
 })
 
 toDoSchema.set('toJSON', {

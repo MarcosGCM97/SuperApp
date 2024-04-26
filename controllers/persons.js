@@ -1,72 +1,81 @@
 const RouterPersons = require('express').Router()
-//const Person = require('../models/person')
+const Person = require('../models/person')
 
-const generateID = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const lengthId = 8
-    
-    let id = '';
-    
-    for (let i = 0; i < lengthId; i++) {
-        const randomChar = Math.floor(Math.random() * chars.length);
-        id += chars.charAt(randomChar);
+
+RouterPersons.get('/', async (request, response, next) => {
+    try{
+        const persons = await Person.find({})
+        response.json(persons)
     }
-    
-    return id
-}
-
-let persons = [
-    {
-        name: 'Marcos',
-        number: '3355482215546',
-        id: generateID()
+    catch(error){
+        next(error)
     }
-]
-
-RouterPersons.get('/', (request, response) => {
-    response.json(persons)
 })
 
-RouterPersons.get('/:id', (request, response) => {
+RouterPersons.get('/:id', async (request, response, next) => {
     const id = request.params.id
-    const data = persons.find(note => note.id === id)
 
-    if (data) {
-        response.json(data)
-      } else {
-        response.status(404).end()
-      }
-})
-
-RouterPersons.delete('/:id', (request, response) => {
-    const id = request.params.id
-    persons = persons.filter(note => note.id !== id)
-
-    response.status(204).end()
-})
-
-
-RouterPersons.post('/', (request, response) => {
-    const data = request.body
-
-    const newPerson = {
-        name: data.name,
-        number: data.number,
-        id: generateID()
+    try{
+        const person = Person.findById(id)
+        if(person){
+            response.json(person)
+        }
+        else{
+            response.status(404).end()
+        }
     }
-    persons = persons.concat(newPerson)
-    
-    response.json(persons)
+    catch(error){
+        next(error)
+    }
 })
 
-RouterPersons.put('/:id', (request, response) => {
+RouterPersons.delete('/:id', async(request, response, next) => {
     const id = request.params.id
-    const updatePerson = request.body
+    
+    try{
+        await Person.findByIdAndDelete(id)
+        response.status(204).end()
+    }
+    catch(error){
+        next(error)
+    }
+})
 
-    persons = persons.filter(note => note.id !== id)
-    persons.push(updatePerson)
-    console.log(persons)
-    response.json(persons)
+
+RouterPersons.post('/', async (request, response, next) => {
+    const body = request.body
+
+    try{
+        if(!body.name){
+            return response.status(400).json({ error: 'content missing' })
+        }
+    
+        const newPerson = new Person({
+            name: body.name,
+            number: body.number
+        })
+        
+        const savedPerson = await newPerson.save()
+        response.json(savedPerson)
+    }
+    catch(error){
+        next(error)
+    }
+})
+
+RouterPersons.put('/:id', async (request, response, next) => {
+    const id = request.params.id
+    const { name, number } = request.body
+
+    try{
+        const updatePerson = await Person.findByIdAndUpdate(id,
+            { name, number },
+            { new: true, runValidators: true, context: 'query' })
+        response.json(updatePerson)    
+    }
+    catch(error){
+        next(error)
+    }
 })
 
 module.exports = RouterPersons

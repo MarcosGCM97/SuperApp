@@ -38,20 +38,25 @@ RouterToDos.delete('/:id', async (request, response, next) => {
     }
 })
 
-RouterToDos.post('/', async (request, response) => {
+RouterToDos.post('/', async (request, response, next) => {
     const body = request.body
 
-    if(!body.task){
-        return response.status(400).json({ error: 'content missing' })
+    try{
+        if(!body.task){
+            return response.status(400).json({ error: 'content missing' })
+        }
+    
+        const toDo = new ToDo({
+            task: body.task,
+            completed: body.completed || false
+        })
+    
+        const savedToDo = await toDo.save()
+        response.json(savedToDo)
     }
-
-    const toDo = new ToDo({
-        task: body.task,
-        completed: body.completed || false
-    })
-
-    const savedToDo = await toDo.save()
-    response.json(savedToDo)
+    catch(error){
+        next(error)
+    }
 })
 
 RouterToDos.put('/:id', async (request, response, next) => {
