@@ -1,10 +1,11 @@
 const mongoose = require('mongoose')
+const config = require('../utils/config')
 
 mongoose.set('strictQuery', false)
 
-const url = process.env.MONGODB_URI
+const URL = config.url
 
-mongoose.connect(url)
+mongoose.connect(URL)
 
 const personSchema = new mongoose.Schema({
     name: {
